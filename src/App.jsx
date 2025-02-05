@@ -1,34 +1,44 @@
 import { useState } from "react";
 import ExpenseList from "./components/ExpenseList";
 import ExpenseFilter from "./components/ExpenseFilter";
+import ExpenseForm from "./components/ExpenseForm";
 
 const App = () => {
-  const expenseData = [
-    { id: 1, description: "2 pack of sugar", category: "groceries", amount: 50 },
-    { id: 2, description: "2 pack of biscuit", category: "groceries", amount: 80 },
-    { id: 3, description: "2 pack of sweet", category: "groceries", amount: 85 },
-    { id: 4, description: "1 Spotify subscription", category: "entertainment", amount: 139 },
-    { id: 5, description: "2 Boomplay subscriptions", category: "entertainment", amount: 450 },
-  ];
-
-  const [expense, setExpense] = useState(expenseData);
-  const [backupExpense] = useState(expenseData); // Keep original data for filtering
+  const [expense, setExpense] = useState([]); // Start with an empty array
+  const [backupExpense, setBackupExpense] = useState([]); // Keep backup empty too
 
   const deleteItem = (id) => {
-    setExpense(expense.filter((item) => item.id !== id));
+    const updatedExpenses = expense.filter((item) => item.id !== id);
+    setExpense(updatedExpenses);
+    setBackupExpense(updatedExpenses);
   };
 
   const filterItem = (category) => {
     if (category === "all") {
-      setExpense(backupExpense); // Reset to original list
+      setExpense(backupExpense);
     } else {
       setExpense(backupExpense.filter((item) => item.category === category));
     }
   };
 
+  const addExpense = (newExpense) => {
+    const expenseWithId = { id: Date.now(), ...newExpense };
+    const updatedExpenses = [...expense, expenseWithId];
+    setExpense(updatedExpenses);
+    setBackupExpense(updatedExpenses);
+  };
+
   return (
-    <div className="p-20 mt-4">
-      <ExpenseFilter filterItem={filterItem} />
+    <div className="max-w-4xl mx-auto p-4 md:p-8 bg-white shadow-lg rounded-lg">
+      <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-700 mb-6">
+        Expense Tracker
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ExpenseForm onSubmit={addExpense} />
+        <ExpenseFilter filterItem={filterItem} />
+      </div>
+
       <ExpenseList item={expense} deleteItem={deleteItem} />
     </div>
   );
